@@ -1,0 +1,11 @@
+# 패키지 빌드/캐시
+build/
+dist/
+*.egg-info/
+__pycache__/
+*.pyc
+.venv/
+
+# 세션·캡쳐는 절대 커밋 금지 (프로젝트 런타임 산출물이지만 혹시 모를 오염 방지)
+**/secrets/*.json
+**/screenshots/
