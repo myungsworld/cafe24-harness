@@ -18,6 +18,11 @@ def dashboard_url(mall: str, shop: str = SHOP_DEFAULT) -> str:
     return f"https://{mall}/disp/admin/{shop}/main/dashboard"
 
 
+def board_admin_list_url(mall: str, shop: str = SHOP_DEFAULT) -> str:
+    # 게시판 관리(게시판 목록) — 어떤 게시판들이 있는지/번호가 뭔지 여기서 탐지
+    return f"https://{mall}/admin/php/{shop}/b/board_admin_l.php"
+
+
 def board_list_url(mall: str, shop: str, board_no: int) -> str:
     # 게시물 관리 (글 목록 + 글고정 + 게시/미게시 토글)
     return (

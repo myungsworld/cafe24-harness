@@ -103,6 +103,58 @@ def dump_page(cfg: ProjectConfig, page, selectors: dict, label: str) -> dict:
     return report
 
 
+def dump_raw(cfg: ProjectConfig, page, label: str) -> dict:
+    """제네릭 덤프 — 판단은 호출자(에이전트)가 한다.
+    각 프레임의 본문 텍스트(발췌) + 테이블 + 링크 + 버튼을 그대로 뽑아 JSON 저장."""
+    report = {"label": label, "url": page.url, "frames": []}
+    report["screenshot"] = str(shot(cfg, page, label))
+    for fr in page.frames:
+        try:
+            data = fr.evaluate(
+                r"""() => {
+                    const norm = s => (s||'').replace(/\s+/g,' ').trim();
+                    const tables = [];
+                    document.querySelectorAll('table').forEach(t => {
+                        const rows = [];
+                        t.querySelectorAll('tr').forEach(tr => {
+                            const c = [...tr.querySelectorAll('th,td')].map(x => norm(x.innerText));
+                            if (c.some(v => v)) rows.push(c);
+                        });
+                        if (rows.length) tables.push(rows);
+                    });
+                    const links = [...document.querySelectorAll('a')].map(a => ({
+                        t: norm(a.innerText).slice(0,40),
+                        href: (a.getAttribute('href')||'').slice(0,120),
+                        onclick: (a.getAttribute('onclick')||'').slice(0,100),
+                    })).filter(x => x.t || x.href);
+                    const buttons = [...document.querySelectorAll('button, a.btnNormal, input[type=button]')].map(b => ({
+                        id: b.id||'', t: norm(b.innerText || b.value).slice(0,30),
+                        onclick: (b.getAttribute('onclick')||'').slice(0,100),
+                    })).filter(x => x.t || x.id);
+                    return { url: location.href, text: norm(document.body ? document.body.innerText : '').slice(0,2500),
+                             tables, links: links.slice(0,250), buttons: buttons.slice(0,120) };
+                }"""
+            )
+        except Exception:
+            data = {"url": fr.url, "text": "", "tables": [], "links": [], "buttons": []}
+        report["frames"].append(data)
+    dump = cfg.screenshots / f"{int(time.time())}_{label}_raw.json"
+    dump.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    report["dump_file"] = str(dump)
+    return report
+
+
+def print_raw_summary(report: dict) -> None:
+    print("\n" + "=" * 60)
+    print(f"열림 — {report['url']}")
+    print(f"  스크린샷: {report.get('screenshot')}")
+    print(f"  덤프(JSON): {report.get('dump_file')}")
+    for i, fr in enumerate(report["frames"]):
+        if fr.get("text") or fr.get("tables") or fr.get("links"):
+            print(f"  · frame[{i}] {fr['url'][:70]} — 텍스트 {len(fr.get('text',''))}자 / 테이블 {len(fr.get('tables',[]))} / 링크 {len(fr.get('links',[]))} / 버튼 {len(fr.get('buttons',[]))}")
+    print("  → 상세는 위 JSON 파일을 읽어 판단.")
+
+
 def print_summary(report: dict) -> None:
     print("\n" + "=" * 60)
     print(f"요약 — {report.get('label')}")

@@ -34,8 +34,15 @@ def build_parser() -> argparse.ArgumentParser:
     isub = pin.add_subparsers(dest="target")
     pb = isub.add_parser("board", help="게시물 관리 진단(미게시 글 감지)")
     pb.add_argument("--dir", default=None)
+    pb.add_argument("--board", type=int, default=None, help="리뷰 게시판 번호 (기본: config 또는 4)")
     pb.add_argument("--headed", action="store_true", help="브라우저 보면서")
     pb.add_argument("--url", default=None, help="게시물 관리 URL 직접 지정")
+
+    po = sub.add_parser("open", help="아무 어드민 페이지를 열어 DOM/스크린샷 덤프 (제네릭)")
+    po.add_argument("target", help="URL · 경로(/admin/...) · alias(dashboard|boards)")
+    po.add_argument("--dir", default=None)
+    po.add_argument("--headed", action="store_true", help="브라우저 보면서")
+    po.add_argument("--no-referer", action="store_true", help="대시보드 경유 생략")
 
     pd = sub.add_parser("doctor", help="설정/세션/크로미움 점검")
     pd.add_argument("--dir", default=None)
@@ -68,6 +75,9 @@ def main(argv=None) -> int:
             return inspect_board.run(args)
         parser.parse_args(["inspect", "--help"])
         return 1
+    if args.cmd == "open":
+        from .commands import open as open_cmd
+        return open_cmd.run(args)
     if args.cmd == "doctor":
         from .commands import doctor
         return doctor.run(args)

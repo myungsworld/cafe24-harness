@@ -30,7 +30,7 @@ def run(args) -> int:
     ok = True
     # 1. 설정
     if cfg.is_configured():
-        print(f"  ✅ mall_domain: {cfg.mall_domain} / shop_id: {cfg.shop_id} / board_no: {cfg.board_no}")
+        print(f"  ✅ mall_domain: {cfg.mall_domain} / shop_id: {cfg.shop_id} / board_no: {cfg.board_no or '(자동 탐지)'}")
     else:
         print(f"  ❌ mall_domain 미설정(placeholder) → config.yaml 수정 필요")
         ok = False

@@ -1,0 +1,25 @@
+# 게시판 골격(skeleton) — 모든 카페24 몰 공통 (cafe24-harness 소유).
+# 어드민 폼/UI가 바뀌면 여기를 고쳐서 패키지를 업데이트한다.
+# 프로젝트는 이 값을 그대로 쓰되, 그 몰의 어드민이 다르면 selectors/cafe24_board.yaml 로 override.
+
+# 게시/미게시 토글: 네이버페이 비회원 후기는 기본 '미게시' → 이 버튼 눌러야 노출.
+#   <a id="ePostId_{no}" onclick="setPost('{board}','{no}')">게시함</a>  (버튼 있으면 = 미게시)
+post_toggle_id_prefix: "ePostId_"
+
+# 비회원/외부연동(네이버페이) 후기 식별 키워드
+writer_keyword: 네이버 페이 구매자
+
+# 글의 공개/노출 상태를 나타낼 수 있는 텍스트 후보
+status_keywords:
+  - 공개
+  - 비공개
+  - 노출
+  - 미노출
+  - 전시
+  - 미전시
+  - 비밀
+  - 승인
+  - 대기
+
+# 화면에서 특정 글을 찾을 때 쓰는 키워드 (프로젝트 페르소나에서 override)
+target_reviews: []
