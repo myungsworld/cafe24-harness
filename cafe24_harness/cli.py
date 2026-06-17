@@ -26,6 +26,7 @@ def build_parser() -> argparse.ArgumentParser:
     pi.add_argument("--force", action="store_true", help="기존 파일 덮어쓰기")
     pi.add_argument("--migrate", action="store_true", help="구버전 selectors에서 설정 추출/정리")
     pi.add_argument("--no-hook", action="store_true", help="SessionStart 자동업그레이드 훅 등록 생략")
+    pi.add_argument("--seed-memory", action="store_true", help="기존 메모리가 있어도 누락 시드를 강제 추가(기성 프로젝트 보호 우회)")
 
     pl = sub.add_parser("login", help="headed 브라우저로 직접 로그인 → 세션 저장")
     pl.add_argument("--dir", default=None)

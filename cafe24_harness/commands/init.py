@@ -110,7 +110,7 @@ def run(args) -> int:
         # 메모리는 Claude 가 세션 시작 때 자동 로드하는 위치로 시드한다(레포 안 X).
         # 프로젝트 루트 = claude 를 실행하는 cwd. cf init 은 보통 프로젝트 루트에서 실행.
         print()
-        claude.seed_project_memory(Path.cwd())
+        claude.seed_project_memory(Path.cwd(), force=getattr(args, "seed_memory", False))
     except Exception as e:
         print(f"  (claude 자산/메모리 스킵: {e} — 수동: cf claude install)")
 

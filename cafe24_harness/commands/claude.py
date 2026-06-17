@@ -79,9 +79,21 @@ def claude_project_memory_dir(project_root) -> Path:
     return Path.home() / ".claude" / "projects" / enc / "memory"
 
 
-def seed_project_memory(project_root, quiet: bool = False) -> Path:
-    """프로젝트의 자동 로드 메모리 디렉토리로 시드(멱등, 기존 파일·MEMORY.md 보존)."""
+def seed_project_memory(project_root, quiet: bool = False, force: bool = False) -> Path:
+    """프로젝트의 자동 로드 메모리 디렉토리로 시드(멱등, 기존 파일·MEMORY.md 보존).
+
+    기성 프로젝트 보호: 이미 메모리가 있으면 시드하지 않는다(force 로만 강제).
+    시드는 새 프로젝트용 '씨앗'이고, 기존 메모리는 시드보다 풍부·구체적일 수 있다(예: healic
+    은 시드의 추출 원본이라 항상 앞선다). 빈칸 페르소나(__FILL__)로 덮어 클러터를 만들지 않는다."""
     mem = claude_project_memory_dir(project_root)
+    existing = [p for p in mem.glob("*.md") if p.name != "MEMORY.md"] if mem.exists() else []
+    if existing and not force:
+        if not quiet:
+            print(f"🧠 프로젝트 메모리: 이미 {len(existing)}개 있음 → 시드 생략 (기성 프로젝트 보호)")
+            print(f"   {str(mem).replace(str(Path.home()), '~')}")
+            print("   누락 시드를 굳이 채우려면: cf init --seed-memory")
+        return mem
+
     out: list = []
     seed_memory(mem, out)
     if not quiet:
