@@ -61,7 +61,7 @@ def run(args) -> int:
     try:
         # git 설치는 pipx upgrade 가 HEAD를 재-fetch 안 하는 경우가 있어 강제 재설치한다.
         r = subprocess.run(
-            [pipx, "install", "--force", _install_spec()],
+            [pipx, "install", "--force", "--pip-args", "--no-cache-dir", _install_spec()],
             capture_output=True, text=True, timeout=180,
         )
         _touch()  # 시도했으면 쿨다운 갱신(성공/무변화 무관)
