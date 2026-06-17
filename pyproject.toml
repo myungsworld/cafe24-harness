@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cafe24-harness"
-version = "0.5.2"
+version = "0.5.3"
 description = "포터블 카페24 어드민 자기개선 하네스 — 수동 로그인 + 세션 재사용 + 화면 진단"
 readme = "README.md"
 requires-python = ">=3.9"
