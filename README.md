@@ -11,12 +11,14 @@ cf setup        # 최초 1회: chromium 설치
 
 (하네스 자체를 개발할 때의 로컬 설치는 [AGENTS.md](AGENTS.md) 참조.)
 
-## 지식 구조 (2층)
+## 지식 구조 (골격 ↔ 페르소나)
 
 | 층 | 위치 | 내용 |
 |---|---|---|
 | **골격(skeleton)** | 패키지 `cafe24_harness/skeletons/` + `knowledge/` | 모든 몰 공통 — 어드민 폼 구조, "미게시 글은 게시함(ePostId_) 버튼 눌러야 노출", URL 패턴 등. 어드민 UI가 바뀌면 여기를 고쳐 업데이트. |
 | **페르소나(persona)** | 프로젝트 `admin/config.yaml` | 그 몰 고유값 — 몰 도메인, "리뷰 게시판 = 4번" 등. 작업하며 채워지고, 다음부턴 빠르게. |
+
+> 여기에 더해 Claude Code 작업용 **메모리/지식 3층**(공통지식 · 작업습관 · 몰별 페르소나)이 있다 — 아래 [Claude Code 통합 → 포터블 메모리](#포터블-메모리-3층) 참조.
 
 `cf`는 **제네릭한 어드민 접근 도구**다. "이 몰에선 뭐가 후기냐" 같은 판단은 도구가 박지 않는다 — 사람/에이전트가 `cf open`으로 보고 판단해 페르소나에 기록한다.
 
@@ -24,7 +26,7 @@ cf setup        # 최초 1회: chromium 설치
 
 ```sh
 cd <카페24 프로젝트>
-cf init                       # 대화형: 몰 도메인만 입력 → admin/ 페르소나 + 훅 (멱등)
+cf init                       # 대화형: 몰 도메인만 입력 → admin/ 페르소나 + Claude 자산/메모리 + 훅 (멱등)
 cf login                      # headed 브라우저 → 직접 로그인 → 세션 저장
 cf open boards                # 게시판 목록을 열어 DOM/스샷 덤프 → 어느 게 후기인지 보고 판단
 cf inspect board --board 4    # 그 번호로 미게시 글 진단 (config에 페르소나 자동 기록)
@@ -110,3 +112,5 @@ admin/
 └── screenshots/     # 캡쳐/덤프 (gitignore)
 # selectors/ 는 그 몰 어드민이 골격과 다를 때만 override용으로 생성
 ```
+
+> 메모리는 레포 안이 아니라 **Claude 자동 로드 위치**(`~/.claude/projects/<프로젝트경로>/memory/`)에 시드된다 — 위 [포터블 메모리](#포터블-메모리-3층) 참조. 슬래시 명령어·에이전트는 전역 `~/.claude/`(프로젝트 무관).
