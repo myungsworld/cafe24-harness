@@ -40,6 +40,14 @@ def build_parser() -> argparse.ArgumentParser:
     pd.add_argument("--dir", default=None)
 
     sub.add_parser("setup", help="chromium 설치 (최초 1회)")
+
+    pu = sub.add_parser("upgrade", help="cafe24-harness 최신화 (pipx)")
+    pu.add_argument("--quiet", action="store_true", help="출력 없이 (훅용)")
+    pu.add_argument("--force", action="store_true", help="쿨다운 무시")
+    pu.add_argument("--cooldown", type=int, default=0, help="이 초 이내면 스킵 (훅: 21600)")
+
+    ph = sub.add_parser("hook", help="SessionStart 자동 업그레이드 훅 설치/해제")
+    ph.add_argument("hook_action", choices=["install", "uninstall"])
     return p
 
 
@@ -64,6 +72,12 @@ def main(argv=None) -> int:
         return doctor.run(args)
     if args.cmd == "setup":
         return _cmd_setup(args)
+    if args.cmd == "upgrade":
+        from .commands import upgrade
+        return upgrade.run(args)
+    if args.cmd == "hook":
+        from .commands import hook
+        return hook.run(args)
 
     parser.print_help()
     return 1
