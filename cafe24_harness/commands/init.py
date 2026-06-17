@@ -87,6 +87,23 @@ def run(args) -> int:
     shop = args.shop or d_shop or e_shop or SHOP_DEFAULT
     board = args.board if args.board is not None else (d_board or e_board or 4)
 
+    # 대화형: 몰 도메인이 아직 정해지지 않았고(=플래그·마이그레이션·기존설정 모두 없음)
+    # 마이그레이션도 아니면 직접 물어본다. 비대화형(파이프/CI)이면 EOFError → 기본값 유지.
+    if mall == PLACEHOLDER_MALL and not args.migrate:
+        try:
+            print("카페24 몰 정보를 입력하세요 (엔터 = 기본값):")
+            v = input("  몰 도메인 (예: yourmall.cafe24.com): ").strip()
+            if v:
+                mall = v
+            v = input(f"  리뷰 게시판 번호 [{board}]: ").strip()
+            if v.isdigit():
+                board = int(v)
+            v = input(f"  shop_id [{shop}]: ").strip()
+            if v:
+                shop = v
+        except EOFError:
+            pass  # 비대화형 → 기본/placeholder 유지
+
     admin_dir.mkdir(parents=True, exist_ok=True)
 
     # --- 1. config.yaml ---

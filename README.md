@@ -5,28 +5,24 @@
 ## 설치 (전역)
 
 ```sh
-pipx install git+https://github.com/<user>/cafe24-harness
+pipx install git+https://github.com/myungsworld/cafe24-harness
 cf setup        # 최초 1회: chromium 설치
 ```
 
-로컬 개발:
-
-```sh
-pipx install --editable ~/cafe24-harness
-# 또는: pip install -e ~/cafe24-harness
-```
+(하네스 자체를 개발할 때의 로컬 설치는 [AGENTS.md](AGENTS.md) 참조.)
 
 ## 사용
 
 ```sh
 cd <카페24 프로젝트>
-cf init --mall yourmall.cafe24.com --board 4   # ./admin/ 설정 스캐폴드 + 자동업그레이드 훅 등록 (멱등)
-cf login                                       # headed 브라우저 → 직접 로그인 → 세션 저장
-cf inspect board                               # 게시물 관리 진단(미게시 글 감지) — 읽기전용
-cf doctor                                      # 세션/설정/크로미움 점검
+cf init             # 대화형: 몰 도메인 / 게시판 번호 입력 → ./admin/ 설정 + 훅 등록 (멱등)
+cf login            # headed 브라우저 → 직접 로그인 → 세션 저장
+cf inspect board    # 게시물 관리 진단(미게시 글 감지) — 읽기전용
+cf doctor           # 세션/설정/크로미움 점검
 ```
 
-`cf init` 한 방이면 설정 + SessionStart 훅까지 끝난다(멱등). 훅이 싫으면 `cf init --no-hook`.
+`cf init` 한 방이면 설정 + SessionStart 훅까지 끝난다(멱등).
+비대화형으로 넣으려면: `cf init --mall yourmall.cafe24.com --board 4` (훅 빼려면 `--no-hook`).
 
 ## 자동 업그레이드 (거버넌스 전파)
 
