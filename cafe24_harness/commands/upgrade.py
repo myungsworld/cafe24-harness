@@ -69,4 +69,11 @@ def run(args) -> int:
         say(out[-1] if out else "cafe24-harness: 최신 상태")
     except Exception as e:  # 네트워크/타임아웃 등 — 절대 세션 막지 않음
         say(f"cafe24-harness upgrade 스킵(실패): {e}")
+
+    # 후처리: Claude Code 자산(슬래시 명령어·에이전트) 갱신 — 전파의 마지막 단계. 실패무시.
+    try:
+        from . import claude as _claude
+        _claude.install(args)
+    except Exception as e:
+        say(f"(claude 자산 갱신 스킵: {e})")
     return 0

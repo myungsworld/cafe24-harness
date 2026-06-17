@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cafe24-harness"
-version = "0.5.7"
+version = "0.6.0"
 description = "포터블 카페24 어드민 자기개선 하네스 — 수동 로그인 + 세션 재사용 + 화면 진단"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -22,4 +22,4 @@ cf = "cafe24_harness.cli:main"
 include = ["cafe24_harness*"]
 
 [tool.setuptools.package-data]
-cafe24_harness = ["templates/**/*", "knowledge/**/*", "skeletons/**/*"]
+cafe24_harness = ["templates/**/*", "knowledge/**/*", "skeletons/**/*", "claude/**/*"]

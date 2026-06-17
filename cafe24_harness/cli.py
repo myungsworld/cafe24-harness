@@ -56,6 +56,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     ph = sub.add_parser("hook", help="SessionStart 자동 업그레이드 훅 설치/해제")
     ph.add_argument("hook_action", choices=["install", "uninstall"])
+
+    pc = sub.add_parser("claude", help="Claude Code 자산(슬래시 명령어·에이전트)을 ~/.claude 로 설치/갱신")
+    pc.add_argument("claude_action", nargs="?", default="install", choices=["install", "refresh"])
+    pc.add_argument("--quiet", action="store_true", help="출력 없이 (훅/업그레이드용)")
     return p
 
 
@@ -89,6 +93,9 @@ def main(argv=None) -> int:
     if args.cmd == "hook":
         from .commands import hook
         return hook.run(args)
+    if args.cmd == "claude":
+        from .commands import claude
+        return claude.run(args)
 
     parser.print_help()
     return 1

@@ -98,9 +98,21 @@ def run(args) -> int:
     # 요약
     print(f"\n📂 {admin_dir}")
     for path, status in results:
-        icon = "＋" if status in ("created",) else ("·" if status.startswith("skip") else "~")
+        icon = "＋" if status in ("created", "seeded") else ("·" if status.startswith("skip") else "~")
         rel = str(path).replace(str(admin_dir) + "/", "")
         print(f"  {icon} {rel:<28} {status}")
+
+    # Claude Code 자산(슬래시 명령어·에이전트) 설치 + 메모리 시드 (멱등)
+    try:
+        from . import claude
+        print()
+        claude.install(args)
+        # 메모리는 Claude 가 세션 시작 때 자동 로드하는 위치로 시드한다(레포 안 X).
+        # 프로젝트 루트 = claude 를 실행하는 cwd. cf init 은 보통 프로젝트 루트에서 실행.
+        print()
+        claude.seed_project_memory(Path.cwd())
+    except Exception as e:
+        print(f"  (claude 자산/메모리 스킵: {e} — 수동: cf claude install)")
 
     # SessionStart 자동업그레이드 훅 (멱등)
     if not getattr(args, "no_hook", False):

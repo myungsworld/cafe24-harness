@@ -35,6 +35,31 @@ cf doctor                     # 세션/설정/크로미움 점검
 
 비대화형: `cf init --mall yourmall.cafe24.com` (훅 빼려면 `--no-hook`).
 
+## Claude Code 통합 (슬래시 명령어 · 에이전트 · 메모리)
+
+`cf`(CLI)에 더해, 카페24 작업용 **Claude Code 슬래시 명령어 + 에이전트 + 포터블 메모리**를 같이 배포한다. `cf init`(또는 `cf claude install`)이 `~/.claude/`로 복사하고, `cf upgrade`가 갱신한다 — **CLI와 같은 단일 채널로 전파.**
+
+```sh
+cf claude install            # ~/.claude/commands/cafe24/ + agents/ 설치·갱신 (멱등)
+```
+
+| 자산 | 무엇 |
+|---|---|
+| `/cafe24/work` | plan→do→check **+ admin** 워크플로. "코드 고쳤는데 화면이 안 바뀜"을 **어드민 설정 문제로 진단**(`cf inspect`/`cf open` 연동). |
+| `/cafe24/echeck` | 라이브 검수. **스토어프론트 DOM + 어드민 상태 교차검증** → 원인을 [코드/어드민설정/외부위젯]으로 판정. |
+| 에이전트 `cafe24-planner` | 작업을 [코드] vs [어드민 설정]으로 분류해 분해. |
+| 에이전트 `cafe24-evaluator` | 코드 QA + Playwright + 어드민 상태 검증. |
+
+### 포터블 메모리 (3층)
+
+`cf init` 이 **Claude 가 세션 시작 때 자동 로드하는 메모리 디렉토리**(`~/.claude/projects/<프로젝트경로>/memory/`)로 누적 지혜를 시드한다(멱등, 기존 메모리·MEMORY.md 보존):
+
+- **공통 지식** (`knowledge/cafe24_admin.md`, 전파됨) — 모든 몰 공통 함정(미게시 후기, 크리마 위젯, 메인진열 표시설정 등).
+- **작업습관 feedback** (시드, 전파) — 상세 코드설명, 명시적 커밋, client-report 포맷, 관리자 설정 코드우회 금지 등.
+- **몰별 persona** (시드 플레이스홀더 `__FILL__`) — board_no, weskin 이미지 경로, 스킨 "대표 디자인". 작업하며 채운다.
+
+> 시드 *씨앗*은 하네스 패키지(`claude/memory/`)에 살며 `cf upgrade`로 갱신·전파된다. 실제로 깔린 메모리는 머신 로컬이지만, 어느 머신이든 하네스 깔고 `cf init` 하면 첫 세션부터 누적 지혜가 자동 로드된다 — **포터블함은 레포가 아니라 하네스에 산다.**
+
 ## 자동 업그레이드 (거버넌스 전파)
 
 **cf init 된 프로젝트에서 Claude 세션을 열 때마다** 자동으로 최신 하네스를 당겨온다. 훅은 `cf init`이 자동 등록한다.
@@ -60,14 +85,18 @@ cf doctor                     # 세션/설정/크로미움 점검
 
 ```
 cafe24_harness/
-├── cli.py        # cf init|login|open|inspect|doctor|setup|upgrade|hook
+├── cli.py        # cf init|login|open|inspect|doctor|setup|upgrade|hook|claude
 ├── config.py     # 페르소나 로드 + URL 해석 + 골격 병합
 ├── urls.py       # 카페24 공통 URL 템플릿
 ├── browser.py    # Playwright 컨텍스트/세션 + 덤프(dump_page/dump_raw)
-├── commands/     # 서브커맨드 구현
+├── commands/     # 서브커맨드 구현 (claude.py = Claude 자산 설치/메모리 시드)
 ├── skeletons/    # 공통 골격(셀렉터) — 모든 몰 공통
 ├── templates/    # cf init 산출물 + hooks 스크립트
-└── knowledge/    # 카페24 어드민 거버넌스(공유 지식)
+├── knowledge/    # 카페24 어드민 거버넌스(공유 지식)
+└── claude/       # Claude Code 자산 (cf 가 ~/.claude 로 복사)
+    ├── commands/cafe24/   # /cafe24/work, /cafe24/echeck
+    ├── agents/            # cafe24-planner, cafe24-evaluator
+    └── memory/            # 포터블 메모리 시드 (feedback + persona)
 ```
 
 프로젝트 풋프린트(`cf init` 후) — **페르소나만**:
