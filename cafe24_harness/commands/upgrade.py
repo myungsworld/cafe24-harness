@@ -5,6 +5,7 @@ SessionStart 훅이 `cf upgrade --quiet --cooldown 21600` 형태로 호출한다
 """
 from __future__ import annotations
 
+import json
 import shutil
 import subprocess
 import time
@@ -12,6 +13,20 @@ from pathlib import Path
 
 CAFE24_HOME = Path.home() / ".cafe24"
 STAMP = CAFE24_HOME / ".last-upgrade"
+FALLBACK_SPEC = "git+https://github.com/myungsworld/cafe24-harness"
+
+
+def _install_spec() -> str:
+    """pipx 메타데이터에서 설치 spec(git URL 등)을 읽는다. 없으면 fallback."""
+    meta = Path.home() / ".local" / "pipx" / "venvs" / "cafe24-harness" / "pipx_metadata.json"
+    try:
+        d = json.loads(meta.read_text(encoding="utf-8"))
+        spec = (d.get("main_package") or {}).get("package_or_url")
+        if spec:
+            return spec
+    except Exception:
+        pass
+    return FALLBACK_SPEC
 
 
 def _within_cooldown(seconds: int) -> bool:
@@ -44,13 +59,14 @@ def run(args) -> int:
         return 0
 
     try:
+        # git 설치는 pipx upgrade 가 HEAD를 재-fetch 안 하는 경우가 있어 강제 재설치한다.
         r = subprocess.run(
-            [pipx, "upgrade", "cafe24-harness"],
-            capture_output=True, text=True, timeout=120,
+            [pipx, "install", "--force", _install_spec()],
+            capture_output=True, text=True, timeout=180,
         )
         _touch()  # 시도했으면 쿨다운 갱신(성공/무변화 무관)
-        out = (r.stdout + r.stderr).strip()
-        say(out or "cafe24-harness: 최신 상태")
+        out = (r.stdout + r.stderr).strip().splitlines()
+        say(out[-1] if out else "cafe24-harness: 최신 상태")
     except Exception as e:  # 네트워크/타임아웃 등 — 절대 세션 막지 않음
         say(f"cafe24-harness upgrade 스킵(실패): {e}")
     return 0
