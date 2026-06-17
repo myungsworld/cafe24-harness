@@ -116,6 +116,15 @@ def run(args) -> int:
         rel = str(path).replace(str(admin_dir) + "/", "")
         print(f"  {icon} {rel:<32} {status}")
 
+    # --- SessionStart 자동업그레이드 훅 보장 (멱등). --no-hook 으로 생략 ---
+    if not getattr(args, "no_hook", False):
+        try:
+            from . import hook
+            print()
+            hook.install(args)
+        except Exception as e:
+            print(f"  (훅 자동등록 스킵: {e} — 수동: cf hook install)")
+
     print("\n다음 단계:")
     if mall == PLACEHOLDER_MALL:
         print(f"  1. {cfg_path} 의 mall_domain 을 실제 도메인으로 수정")

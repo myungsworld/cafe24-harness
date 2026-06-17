@@ -25,6 +25,7 @@ def build_parser() -> argparse.ArgumentParser:
     pi.add_argument("--dir", default="admin", help="설정 디렉토리 (기본 admin)")
     pi.add_argument("--force", action="store_true", help="기존 파일 덮어쓰기")
     pi.add_argument("--migrate", action="store_true", help="구버전 selectors에서 설정 추출/정리")
+    pi.add_argument("--no-hook", action="store_true", help="SessionStart 자동업그레이드 훅 등록 생략")
 
     pl = sub.add_parser("login", help="headed 브라우저로 직접 로그인 → 세션 저장")
     pl.add_argument("--dir", default=None)
